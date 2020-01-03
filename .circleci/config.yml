@@ -27,6 +27,31 @@ jobs:
       - store_artifacts:
           path: ./logs
 
+  pypi:
+    only:
+      - master
+    docker:
+      - image: python:3.7
+     steps:
+      - checkout
+
+      - run:
+          name: Publish to PyPi
+          command: |
+            echo -e "TODO: Need to set env variables VERSION, PYPI_USER, and PYPI_PASS"
+            echo -e "Installing twine...\n\n"
+            pip install twine
+            echo -e "\nCreating setup package...\n\n"
+            python setup.py sdist
+            echo -e "\nPublishing to version ref '$VERSION'...\n\n"
+            twine upload -u $PYPI_USER -p $PYPI_PASS dist/*
+
+      - run: 
+          name: Test install (pip install slalom.dataops)
+          command: |
+            pip install dbt-spark
+
+
 workflows:
   version: 2
   test-everything:
@@ -35,3 +60,8 @@ workflows:
       - integration:
           requires:
             - unit
+
+  pypi-publish:
+    jobs:
+      - pypi
+ 
